@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="pomodoro.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Pomo<span style="color: rgb(182, 26, 68);">Doro</span></h1>
+        </div>
+        <div>
+            <ul>
+                <li @click="changeTo('pomo')" :class="{active:pomodoro}">Pomodoro</li>
+                <li @click="changeTo('sbreak')" :class="{active:sbreak}">Short Break</li>
+                <li @click="changeTo('lbreak')" :class="{active:lbreak}">Long Break</li>
+            </ul>
+        </div>
+        <div class="container">
+            <div class="circle">{{formatTime(minutes)}}:{{formatTime(seconds)}} </div>
+        </div>
+        <div>
+            <button @click="Restart">Restart</button>
+            <button @click="startTimer">Start</button>
+    
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> <!-- Vue 3 -->
+    <script>
+        const app = Vue.createApp({
+            data(){
+                return{
+                    timer:null,
+                    minutes:25,
+                    seconds:0,
+                    sbreak: false,
+                    lbreak: false,
+                    pomodoro: true
+                }
+            },
+            methods:{
+                startTimer(){
+                    this.timer = setInterval(() => {
+                            if (this.seconds > 0) {
+                            this.seconds--; // Decrease seconds
+                            } else if (this.minutes > 0) {
+                            this.minutes--; // Decrease minutes and reset seconds
+                            this.seconds = 59;
+                            } else {
+                            clearInterval(this.timer); // Stop timer when countdown reaches 0
+                            this.timer = null;
+                            }
+                        }, 1000);
+                },
+                beforeUnmount() {
+                    clearInterval(this.timer);
+                },
+                changeTo(value){
+                    clearInterval(this.timer);
+                    this.timer = null;
+                    this.seconds = 0;
+                    if(value=="pomo"){
+                        this.minutes = 25;
+                        this.pomodoro = true;
+                        this.sbreak = false;
+                        this.lbreak = false;
+                    }else if(value =="sbreak"){
+                        this.minutes = 5;
+                        this.pomodoro = false;
+                        this.sbreak = true;
+                        this.lbreak = false;
+                    }else{
+                        this.minutes = 15;
+                        this.pomodoro = false;
+                        this.sbreak = false;
+                        this.lbreak = true;
+                    }
+
+                },
+                formatTime(value) {
+                    return value < 10 ? `0${value}` : value;
+                },
+                Restart() {
+                    this.minutes = 25;
+                    this.seconds = 0;
+                    clearInterval(this.timer);
+                    this.timer = null;
+                    this.changeTo("pomo");
+                }
+            }
+
+        });
+        app.mount("#app");
+    </script>
+</body>
+</html>
